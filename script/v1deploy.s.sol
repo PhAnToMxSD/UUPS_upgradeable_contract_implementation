@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import {Script} from "forge-std/Script.sol";
 import {UUPSv1} from "../src/UUPSv1.sol";
-import {EIP1967Proxy} from "@openzeppelin/proxy/ERC1967/ERC1967Proxy.sol";
+import {ERC1967Proxy} from "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract DeployUUPS is Script {
-    function run() external returns (address){
+    function run() external returns (address) {
         address proxy = deployer();
         return proxy;
     }
@@ -14,9 +14,9 @@ contract DeployUUPS is Script {
     function deployer() internal returns (address) {
         vm.startBroadcast();
         UUPSv1 impl = new UUPSv1();
-        EIP1967Proxy proxy = new EIP1967Proxy(address(impl), "");
-        UUPSv1(address(proxy)).initialize();
+        bytes memory data = abi.encodeWithSignature("initialize(address)", msg.sender);
+        ERC1967Proxy proxy = new ERC1967Proxy(address(impl), data);
         vm.stopBroadcast();
-        return proxy;
+        return address(proxy);
     }
 }
